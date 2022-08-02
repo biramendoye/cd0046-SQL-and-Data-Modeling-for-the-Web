@@ -71,8 +71,15 @@ class Artist(db.Model):
 
     # implement any missing fields, as a database migration using Flask-Migrate
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+class Show(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  start_time = db.Column(db.DateTime, nullable=False)
+  artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), nullable=False)
+  venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), nullable=False)
 
+  def __repr__(self) -> str:
+    return f"<Show: {self.artist_id} - {self.venue_id}>"
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
