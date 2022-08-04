@@ -73,6 +73,8 @@ class Artist(db.Model):
 
 # Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 class Show(db.Model):
+  __tablename__ = 'shows'
+
   id = db.Column(db.Integer, primary_key=True)
   start_time = db.Column(db.DateTime, nullable=False)
   artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), nullable=False)
