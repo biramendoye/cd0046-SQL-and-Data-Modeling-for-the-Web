@@ -89,7 +89,17 @@ def search_venues():
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   response={"count": 0, "data": []}
   search_term=request.form.get('search_term', '')
-  venues = Venue.query.filter(Venue.name.ilike(f'%{search_term}%'))
+  # Implement searching by city and state
+  terms = search_term.strip().split(',')
+  if len(terms) == 2:
+    city , state = terms
+    city = city.strip()
+    state = state.strip()
+    venues = Venue.query.filter(Venue.city.ilike(f'%{city}%'), Venue.state.ilike(f'%{state}%'))
+    response['city'] = city
+    response['state'] = state
+  else:
+    venues = Venue.query.filter(Venue.name.ilike(f'%{search_term}%'))
   response["count"] = venues.count()
   for venue in venues:
     response["data"].append({
@@ -237,7 +247,17 @@ def search_artists():
   # search for "band" should return "The Wild Sax Band".
   response={"count": 0, "data": []}
   search_term=request.form.get('search_term', '')
-  artists = Artist.query.filter(Artist.name.ilike(f'%{search_term}%'))
+  # Implement searching by city and state
+  terms = search_term.strip().split(',')
+  if len(terms) == 2:
+    city , state = terms
+    city = city.strip()
+    state = state.strip()
+    artists = Artist.query.filter(Artist.city.ilike(f'%{city}%'), Artist.state.ilike(f'%{state}%'))
+    response['city'] = city
+    response['state'] = state
+  else:
+    artists = Artist.query.filter(Artist.name.ilike(f'%{search_term}%'))
   response["count"] = artists.count()
   for artist in artists:
     response["data"].append({
