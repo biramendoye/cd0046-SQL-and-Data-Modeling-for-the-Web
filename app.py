@@ -5,7 +5,7 @@
 import logging
 from datetime import datetime
 from logging import FileHandler, Formatter
-
+import string
 import babel
 import dateutil.parser
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -119,26 +119,31 @@ def show_venue(venue_id):
   # replace with real venue data from the venues table, using venue_id
   
   venue = Venue.query.get(venue_id)
-  past_shows = [
-    {
-      "artist_id": show.artist_id,
-      "artist_name": show.artist.name,
-      "artist_image_link": show.artist.image_link,
-      "start_time": str(show.start_time)
-    } 
-    for show in venue.shows 
-    if show.start_time < datetime.now()
-  ]
-  upcoming_shows = [
-    {
-      "artist_id": show.artist_id,
-      "artist_name": show.artist.name,
-      "artist_image_link": show.artist.image_link,
-      "start_time": str(show.start_time)
-    } 
-    for show in venue.shows 
-    if show.start_time >= datetime.now()
-  ]
+
+  past_shows_query = db.session.query(Show).join(Venue).filter(Show.venue_id==venue_id).filter(Show.start_time<datetime.now()).all()   
+  past_shows = []
+  for show in past_shows_query:
+    past_shows.append(
+      {
+        "artist_id": show.artist_id,
+        "artist_name": show.artist.name,
+        "artist_image_link": show.artist.image_link,
+        "start_time": str(show.start_time)
+      }
+    )
+  
+  upcoming_shows_query = db.session.query(Show).join(Venue).filter(Show.venue_id==venue_id).filter(Show.start_time>datetime.now()).all()   
+  upcoming_shows = []
+  for show in upcoming_shows_query:
+    upcoming_shows.append(
+      {
+        "artist_id": show.artist_id,
+        "artist_name": show.artist.name,
+        "artist_image_link": show.artist.image_link,
+        "start_time": str(show.start_time)
+      } 
+    )
+  
   data = {
     "id": venue.id,
     "name": venue.name,
@@ -190,7 +195,9 @@ def create_venue_submission():
     seeking_talent = form.seeking_talent.data
     seeking_description = form.seeking_description.data
     website = form.website_link.data
-    genres = ",".join(form.genres.data) # need to transform genres to a string before insertion
+    genres = ",".join(form.genres.data) 
+    if string.string.ascii_letters in phone:
+      raise Exception("Invalid phone Number!!") # need to transform genres to a string before insertion
     venue = Venue(
       name=name, 
       state=state,
@@ -276,26 +283,31 @@ def show_artist(artist_id):
   # shows the artist page with the given artist_id
   # replace with real artist data from the artist table, using artist_id
   artist = Artist.query.get(artist_id)
-  past_shows = [
-    {
-      "venue_id": show.venue_id,
-      "venue_name": show.venue.name,
-      "venue_image_link": show.venue.image_link,
-      "start_time": str(show.start_time)
-    } 
-    for show in artist.shows 
-    if show.start_time < datetime.now()
-  ]
-  upcoming_shows = [
-    {
-      "venue_id": show.venue_id,
-      "venue_name": show.venue.name,
-      "venue_image_link": show.venue.image_link,
-      "start_time": str(show.start_time)
-    } 
-    for show in artist.shows 
-    if show.start_time >= datetime.now()
-  ]
+
+  past_shows_query = db.session.query(Show).join(Artist).filter(Show.artist_id==artist_id).filter(Show.start_time<datetime.now()).all()   
+  past_shows = []
+  for show in past_shows_query:
+    past_shows.append(
+      {
+        "venue_id": show.venue_id,
+        "venue_name": show.venue.name,
+        "venue_image_link": show.venue.image_link,
+        "start_time": str(show.start_time)
+      }
+    )
+  
+  upcoming_shows_query = db.session.query(Show).join(Artist).filter(Show.artist_id==artist_id).filter(Show.start_time>datetime.now()).all()   
+  upcoming_shows = []
+  for show in upcoming_shows_query:
+    upcoming_shows.append(
+      {
+        "venue_id": show.venue_id,
+        "venue_name": show.venue.name,
+        "venue_image_link": show.venue.image_link,
+        "start_time": str(show.start_time)
+      }
+    )
+  
   data ={
     "id": artist.id,
     "name": artist.name,
@@ -441,6 +453,8 @@ def create_artist_submission():
     seeking_description = form.seeking_description.data
     website = form.website_link.data
     genres = ",".join(form.genres.data) 
+    if string.string.ascii_letters in phone:
+      raise Exception("Invalid phone Number!!")
     artist = Artist(
       name=name,
       city=city,
