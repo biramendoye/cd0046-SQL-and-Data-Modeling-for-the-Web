@@ -185,19 +185,25 @@ def create_venue_submission():
   try:
     form = VenueForm(request.form)
       
-    name = form.name.data
-    city = form.city.data
-    state = form.state.data
-    address = form.address.data
-    phone = form.phone.data
-    image_link = form.image_link.data
-    facebook_link = form.facebook_link.data
+    name = form.name.data.strip()
+    city = form.city.data.strip()
+    state = form.state.data.strip()
+    address = form.address.data.strip()
+    phone = form.phone.data.strip()
+    image_link = form.image_link.data.strip()
+    facebook_link = form.facebook_link.data.strip()
     seeking_talent = form.seeking_talent.data
-    seeking_description = form.seeking_description.data
-    website = form.website_link.data
-    genres = ",".join(form.genres.data) 
-    if string.string.ascii_letters in phone:
-      raise Exception("Invalid phone Number!!") # need to transform genres to a string before insertion
+    seeking_description = form.seeking_description.data.strip()
+    website = form.website_link.data.strip()
+    genres = ",".join(form.genres.data) # need to transform genres to a string before insertion
+  
+    for char in string.ascii_letters:
+      if char in phone:
+        raise Exception("Invalid phone Number!!") # we don't want letters in phone numbers
+    
+    if phone ==  '':
+      raise Exception("Invalid phone Number!!") # we don't need an empty phone number
+    
     venue = Venue(
       name=name, 
       state=state,
@@ -443,18 +449,25 @@ def create_artist_submission():
   try:
     form = ArtistForm(request.form)
   
-    name = form.name.data
-    city = form.city.data
-    state = form.state.data
-    phone = form.phone.data
-    image_link = form.image_link.data
-    facebook_link = form.facebook_link.data
+    name = form.name.data.strip()
+    city = form.city.data.strip()
+    state = form.state.data.strip()
+    phone = form.phone.data.strip()
+    image_link = form.image_link.data.strip()
+    facebook_link = form.facebook_link.data.strip()
     seeking_venue = form.seeking_venue.data
-    seeking_description = form.seeking_description.data
-    website = form.website_link.data
+    seeking_description = form.seeking_description.data.strip()
+    website = form.website_link.data.strip()
     genres = ",".join(form.genres.data) 
-    if string.string.ascii_letters in phone:
-      raise Exception("Invalid phone Number!!")
+    
+    # a phone number must not contain aphabetic characters but 
+    for char in string.ascii_letters:
+      if char in phone:
+        raise Exception("Invalid phone Number!!")
+    
+    if phone ==  '':
+      raise Exception("Invalid phone Number!!") # we don't need an empty phone number
+      
     artist = Artist(
       name=name,
       city=city,
